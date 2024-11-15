@@ -18,6 +18,10 @@ const MovieSchema = new mongoose.Schema({
   averageRating: {
     type: Number,
     default: 0,
+  }, 
+  ratingsCount: {
+    type: Number,
+    default: 0,
   },
   coverPhoto: String, // URL for the movie cover photo
   trivia: [String],
