@@ -4,14 +4,29 @@ const router = express.Router();
 const { protect } = require('../middlewares/authMiddleware');
 const userController = require('../controllers/userController');
 
-// Authentication routes
+// Login Signup routes
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 
-// Protected routes
+// User Management routes
 router.get('/profile', protect, userController.getUserProfile);
 router.put('/profile', protect, userController.updateUserProfile);
 router.delete('/:id',protect, userController.deleteUser);
+
+// Preferences routes
+router.get('/preferences', protect, userController.getPreferences);
+router.post('/preferences/favoriteGenres', protect, userController.addFavoriteGenre);
+router.delete('/preferences/favoriteGenres', protect, userController.removeFavoriteGenre);
+router.post('/preferences/favoriteActors', protect, userController.addFavoriteActor);
+router.delete('/preferences/favoriteActors', protect, userController.removeFavoriteActor);
+
+// Custom Lists routes
+router.get('/customLists', protect, userController.getCustomLists);
+router.post('/customLists', protect, userController.createCustomList);
+router.put('/customLists/:listId', protect, userController.updateCustomList);
+router.delete('/customLists/:listId', protect, userController.deleteCustomList);
+router.post('/customLists/:listId/share', protect, userController.shareCustomList);
+
 
 // Wishlist routes
 router.post('/wishlist', protect, userController.addToWishlist);

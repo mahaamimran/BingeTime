@@ -6,9 +6,8 @@ const jwt = require('jsonwebtoken');
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET);
 };
-
+// ---------------------------- Login Signup ----------------------------
 // registering a new user
-
 const registerUser = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
@@ -47,6 +46,29 @@ const loginUser = async (req, res) => {
     }
 };
 
+// ---------------------------- User Management ----------------------------
+// get the authenticated user's profile
+const getUserProfile = async (req, res) => {
+    res.status(200).json(req.user);
+};
+
+// update the authenticated user's profile
+const updateUserProfile = async (req, res) => {
+    try {
+        const { name, email, role } = req.body;
+
+        // Update the user's profile
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { name, email, role },
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({ id: user._id, name: user.name, email: user.email, role: user.role });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 // delete a user
 const deleteUser = async (req, res) => {
     try {
@@ -70,31 +92,164 @@ const deleteUser = async (req, res) => {
     }
 };
 
+// ---------------------------- Preferences ----------------------------
 
-
-// get the authenticated user's profile
-const getUserProfile = async (req, res) => {
-    res.status(200).json(req.user);
-};
-
-// update the authenticated user's profile
-const updateUserProfile = async (req, res) => {
+// Get user preferences
+const getPreferences = async (req, res) => {
     try {
-        const { name, email, role } = req.body;
-
-        // Update the user's profile
-        const user = await User.findByIdAndUpdate(
-            req.user._id,
-            { name, email, role },
-            { new: true, runValidators: true }
-        );
-
-        res.status(200).json({ id: user._id, name: user.name, email: user.email, role: user.role });
+        const user = await User.findById(req.user._id).select('preferences');
+        res.status(200).json(user.preferences);
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
 };
 
+// Add a favorite genre
+const addFavoriteGenre = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { genre } = req.body;
+
+        if (!user.preferences.favoriteGenres.includes(genre)) {
+            user.preferences.favoriteGenres.push(genre);
+            await user.save();
+            res.status(200).json({ message: 'Favorite genre added' });
+        } else {
+            res.status(400).json({ message: 'Genre already in favorites' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Remove a favorite genre
+const removeFavoriteGenre = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { genre } = req.body;
+
+        user.preferences.favoriteGenres = user.preferences.favoriteGenres.filter(g => g !== genre);
+        await user.save();
+        res.status(200).json({ message: 'Favorite genre removed' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Add a favorite actor
+const addFavoriteActor = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { actor } = req.body;
+
+        if (!user.preferences.favoriteActors.includes(actor)) {
+            user.preferences.favoriteActors.push(actor);
+            await user.save();
+            res.status(200).json({ message: 'Favorite actor added' });
+        } else {
+            res.status(400).json({ message: 'Actor already in favorites' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Remove a favorite actor
+const removeFavoriteActor = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { actor } = req.body;
+
+        user.preferences.favoriteActors = user.preferences.favoriteActors.filter(a => a !== actor);
+        await user.save();
+        res.status(200).json({ message: 'Favorite actor removed' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// ---------------------------- Custom Lists ----------------------------
+// Get all custom lists
+const getCustomLists = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('customLists');
+        res.status(200).json(user.customLists);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Create a new custom list
+const createCustomList = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { title, movies } = req.body;
+
+        user.customLists.push({ title, movies });
+        await user.save();
+        res.status(201).json({ message: 'Custom list created' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Update an existing custom list
+const updateCustomList = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { title, movies } = req.body;
+        const { listId } = req.params;
+
+        const customList = user.customLists.id(listId);
+        if (!customList) return res.status(404).json({ message: 'Custom list not found' });
+
+        customList.title = title || customList.title;
+        customList.movies = movies || customList.movies;
+
+        await user.save();
+        res.status(200).json({ message: 'Custom list updated' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Delete a custom list
+const deleteCustomList = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { listId } = req.params;
+
+        user.customLists = user.customLists.filter(list => list._id.toString() !== listId);
+        await user.save();
+        res.status(200).json({ message: 'Custom list deleted' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Share a custom list with other users
+const shareCustomList = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { listId } = req.params;
+        const { sharedWithUserId } = req.body;
+
+        const customList = user.customLists.id(listId);
+        if (!customList) return res.status(404).json({ message: 'Custom list not found' });
+
+        if (!customList.sharedWith.includes(sharedWithUserId)) {
+            customList.sharedWith.push(sharedWithUserId);
+            await user.save();
+            res.status(200).json({ message: 'Custom list shared' });
+        } else {
+            res.status(400).json({ message: 'User already has access to this list' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// ---------------------------- Wishlist ----------------------------
 
 // add to wishlist
 const addToWishlist = async (req, res) => {
@@ -147,5 +302,14 @@ module.exports = {
     addToWishlist,
     removeFromWishlist,
     getWishlist,
+    getPreferences,
+    addFavoriteGenre,
+    removeFavoriteGenre,
+    addFavoriteActor,
+    removeFavoriteActor,
+    getCustomLists,
+    createCustomList,
+    updateCustomList,
+    deleteCustomList,
+    shareCustomList,
 };
-

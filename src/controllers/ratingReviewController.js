@@ -1,7 +1,7 @@
 const RatingReview = require('../models/RatingReview');
 const Movie = require('../models/Movie');
 
-// Add or update a rating and review
+// add/update a rating and review
 const addOrUpdateRatingReview = async (req, res) => {
   try {
     const { movieId, rating, review } = req.body;
@@ -74,7 +74,7 @@ const getMovieRatingsReviews = async (req, res) => {
   }
 };
 
-// Get user's rating and review for a specific movie
+// get user's rating and review for a specific movie
 const getUserRatingReview = async (req, res) => {
   try {
     const { movieId } = req.params;

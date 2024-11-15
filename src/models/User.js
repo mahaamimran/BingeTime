@@ -47,6 +47,12 @@ const UserSchema = new mongoose.Schema(
             ref: 'Movie',
           },
         ],
+        sharedWith: [
+            {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: 'User',
+            },
+          ],
       },
     ],
   },
