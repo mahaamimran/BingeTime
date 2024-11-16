@@ -89,9 +89,111 @@ const getUserRatingReview = async (req, res) => {
   }
 };
 
+// Top Rated Reviews
+const getTopRatedReviews = async (req, res) => {
+  try {
+    const { movieId } = req.params;
+
+    // Find reviews for the movie, sort by likes first, then by rating
+    const topRatedReviews = await RatingReview.find({ movieId })
+      .sort({ likes: -1, rating: -1 }) // Sort by likes first, then by rating
+      .populate('userId', 'name'); // Populate user details (e.g., name)
+
+    // If no reviews exist, return an empty array
+    if (!topRatedReviews || topRatedReviews.length === 0) {
+      return res.status(404).json({ message: 'No reviews found' });
+    }
+
+    res.status(200).json(topRatedReviews);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+// mosr discussed reviews
+const getMostDiscussedReviews = async (req, res) => {
+  try {
+    const { movieId } = req.params;
+
+    // Find reviews for the movie, sort by the number of comments first, then by likes
+    const mostDiscussedReviews = await RatingReview.find({ movieId })
+      .sort({ 'comments.length': -1, likes: -1 }) // Sort by comments first, then by likes
+      .populate('userId', 'name') // Populate user details (e.g., name)
+      .populate('comments.userId', 'name'); // Populate user details for comments
+
+    // If no reviews exist, return an empty array
+    if (!mostDiscussedReviews || mostDiscussedReviews.length === 0) {
+      return res.status(404).json({ message: 'No reviews found' });
+    }
+
+    res.status(200).json(mostDiscussedReviews);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+// like a review
+const addLikeToReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+
+    const review = await RatingReview.findByIdAndUpdate(
+      reviewId,
+      { $inc: { likes: 1 } },
+      { new: true }
+    );
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+
+    res.status(200).json({ message: 'Like added to review', review });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+// add comment
+const addCommentToReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { comment } = req.body;
+    const userId = req.user._id;
+
+    const review = await RatingReview.findById(reviewId);
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+
+    review.comments.push({ userId, comment });
+    await review.save();
+
+    res.status(200).json({ message: 'Comment added to review', review });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// get comments
+const getCommentsForReview = async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+
+    const review = await RatingReview.findById(reviewId).populate('comments.userId', 'name');
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+
+    res.status(200).json({ comments: review.comments });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   addOrUpdateRatingReview,
   deleteRatingReview,
   getMovieRatingsReviews,
   getUserRatingReview,
+  getTopRatedReviews,
+  getMostDiscussedReviews,
+  addLikeToReview,
+  addCommentToReview,
+  getCommentsForReview,
 };

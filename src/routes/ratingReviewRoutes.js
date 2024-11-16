@@ -1,17 +1,26 @@
+// src/routes/ratingReviewRoutes.js
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/authMiddleware');
 const ratingReviewController = require('../controllers/ratingReviewController');
 
-// all routes 
+// Public routes
 router.get('/movie/:movieId', ratingReviewController.getMovieRatingsReviews);
 
-// protected routes
+// Protected routes
 router.post('/', protect, ratingReviewController.addOrUpdateRatingReview);
 router.delete('/:movieId', protect, ratingReviewController.deleteRatingReview);
 router.get('/user/:movieId', protect, ratingReviewController.getUserRatingReview);
 
+// Likes and Comments routes
+router.get('/:movieId/top-rated', protect, ratingReviewController.getTopRatedReviews);
+router.get('/:movieId/most-discussed', protect, ratingReviewController.getMostDiscussedReviews);
+router.post('/:reviewId/like', protect, ratingReviewController.addLikeToReview);
+router.post('/:reviewId/comment', protect, ratingReviewController.addCommentToReview);
+router.get('/:reviewId/comments', ratingReviewController.getCommentsForReview);
+
 module.exports = router;
+
 
 /**
  * @swagger

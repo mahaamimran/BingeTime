@@ -2,35 +2,46 @@
 const mongoose = require('mongoose');
 
 const RatingReviewSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
   movieId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Movie',
     required: true,
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
   rating: {
     type: Number,
     required: true,
-    min: 1,
+    min: 0,
     max: 5,
   },
   review: {
     type: String,
-    default: '',
+    trim: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  likes: {
+    type: Number,
+    default: 0, // Tracks how many users liked this review
   },
-  updatedAt: {
-    type: Date,
-  },
-}, {
-  timestamps: true,
-});
+  comments: [
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      comment: {
+        type: String,
+        trim: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+}, { timestamps: true });
 
 module.exports = mongoose.model('RatingReview', RatingReviewSchema);
