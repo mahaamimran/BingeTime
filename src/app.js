@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoutes");
 const movieRoutes = require("./routes/movieRoutes");
 const ratingReviewRoutes = require("./routes/ratingReviewRoutes");
 const personRoutes = require("./routes/personRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
 dotenv.config();
@@ -27,6 +28,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/movies', movieRoutes);
 app.use('/api/rating-reviews', ratingReviewRoutes);
 app.use('/api/persons', personRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);

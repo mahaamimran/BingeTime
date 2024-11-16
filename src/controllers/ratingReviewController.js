@@ -1,5 +1,33 @@
 const RatingReview = require('../models/RatingReview');
 const Movie = require('../models/Movie');
+const Trending = require('../models/Trending');
+
+
+// not direectly used in routes, used when a user rates a movie
+const updateTrendingWeight = async (movieId) => {
+  try {
+      // Fetch movie details
+      const movie = await Movie.findById(movieId);
+
+      // Fetch all reviews for the movie
+      const reviews = await RatingReview.find({ movieId });
+
+      // Calculate total likes on reviews
+      const totalLikes = reviews.reduce((sum, review) => sum + review.likes, 0);
+
+      // Calculate weight
+      const weight = (movie.averageRating * 10) + (movie.ratingsCount * 2) + totalLikes;
+
+      // Update or create trending entry
+      await Trending.findOneAndUpdate(
+          { movie: movieId },
+          { weight },
+          { upsert: true, new: true } // Create entry if not exists
+      );
+  } catch (error) {
+      console.error('Error updating trending weight:', error);
+  }
+};
 
 // add/update a rating and review
 const addOrUpdateRatingReview = async (req, res) => {
@@ -31,6 +59,9 @@ const addOrUpdateRatingReview = async (req, res) => {
 
     await Movie.findByIdAndUpdate(movieId, { averageRating });
 
+    // update weight in Trending model
+    await updateTrendingWeight(movieId);
+
     res.status(200).json({ message: 'Rating and review saved', ratingReview });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -55,7 +86,9 @@ const deleteRatingReview = async (req, res) => {
     const averageRating = movieRatings.length ? totalRating / movieRatings.length : 0;
 
     await Movie.findByIdAndUpdate(movieId, { averageRating });
-
+    
+    // update weight in Trending model
+    await updateTrendingWeight(movieId);
     res.status(200).json({ message: 'Rating and review deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
