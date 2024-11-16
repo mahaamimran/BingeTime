@@ -5,11 +5,15 @@ const movieController = require('../controllers/movieController');
 const { protect } = require('../middlewares/authMiddleware');
 const { admin } = require('../middlewares/adminMiddleware');
 
+// Movie Routes
 router.post('/', protect, admin, movieController.addMovie);
-router.get('/', protect, admin, movieController.getAllMovies);
-router.get('/:id', protect, admin, movieController.getMovieById);
+router.get('/', protect, movieController.getAllMovies);
+router.get('/:id', protect, movieController.getMovieById);
 router.put('/:id', protect, admin, movieController.updateMovie);
 router.delete('/:id', protect, admin, movieController.deleteMovie);
+
+module.exports = router;
+
 
 /**
  * @swagger

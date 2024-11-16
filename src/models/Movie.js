@@ -8,17 +8,28 @@ const MovieSchema = new mongoose.Schema({
   },
   genre: [String],
   director: {
-    type: String,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Person', // Reference to Person schema with role 'Director'
   },
-  cast: [String],
+  cast: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Person', // Reference to Person schema with role 'Actor'
+    },
+  ],
+  crew: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Person', // Reference to Person schema with role 'Crew'
+    },
+  ],
   releaseDate: Date,
   runtime: Number, // in minutes
   synopsis: String,
   averageRating: {
     type: Number,
     default: 0,
-  }, 
+  },
   ratingsCount: {
     type: Number,
     default: 0,
@@ -28,7 +39,7 @@ const MovieSchema = new mongoose.Schema({
   goofs: [String],
   soundtrack: [String],
   ageRating: String, // e.g., "PG-13"
-  parentalGuidance: String, // details for parental guidance
+  parentalGuidance: String, // Parental guidance details
 }, {
   timestamps: true,
 });

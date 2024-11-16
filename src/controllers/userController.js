@@ -1,6 +1,7 @@
 // src/controllers/userController.js
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); 
+
 
 // this is to generate jwt
 const generateToken = (id) => {
@@ -185,10 +186,17 @@ const createCustomList = async (req, res) => {
         const user = await User.findById(req.user._id);
         const { title, movies } = req.body;
 
-        user.customLists.push({ title, movies });
+        // Add the custom list
+        user.customLists.push({
+            title,
+            movies,
+            creator: req.user._id,
+        });
+
         await user.save();
         res.status(201).json({ message: 'Custom list created' });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -244,6 +252,74 @@ const shareCustomList = async (req, res) => {
         } else {
             res.status(400).json({ message: 'User already has access to this list' });
         }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// ------------------------- Followed List -------------------------
+
+// Get all followed lists for the authenticated user
+const getFollowedLists = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('followedLists');
+        res.status(200).json(user.followedLists);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Follow a custom list
+const followCustomList = async (req, res) => {
+    try {
+        const { listId } = req.params;
+        const user = await User.findById(req.user._id);
+
+        // Check if the list is already followed
+        if (user.followedLists.some(list => list.listId.toString() === listId)) {
+            return res.status(400).json({ message: 'You are already following this list' });
+        }
+
+        // Fetch the custom list from the creator
+        const creator = await User.findOne({ 'customLists._id': listId });
+        if (!creator) return res.status(404).json({ message: 'Custom list not found' });
+
+        const customList = creator.customLists.id(listId);
+
+        // Check if the list is shared with the user or created by the user
+        if (
+            customList.creator.toString() !== req.user._id.toString() &&
+            !customList.sharedWith.some(id => id.toString() === req.user._id.toString())
+        ) {
+            return res.status(403).json({ message: 'You do not have access to this list' });
+        }
+
+        user.followedLists.push({
+            userId: creator._id,
+            listId: customList._id,
+            title: customList.title,
+            movies: customList.movies,
+            creator: customList.creator,
+        });
+
+        await user.save();
+        res.status(200).json({ message: 'Custom list followed', followedLists: user.followedLists });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Unfollow a custom list
+const unfollowCustomList = async (req, res) => {
+    try {
+        const { listId } = req.params;
+        const user = await User.findById(req.user._id);
+
+        user.followedLists = user.followedLists.filter(list => list.listId.toString() !== listId);
+
+        await user.save();
+        res.status(200).json({ message: 'Custom list unfollowed' });
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }
@@ -312,4 +388,7 @@ module.exports = {
     updateCustomList,
     deleteCustomList,
     shareCustomList,
+    getFollowedLists,
+    followCustomList,
+    unfollowCustomList,
 };
