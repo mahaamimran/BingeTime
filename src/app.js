@@ -8,6 +8,8 @@ const movieRoutes = require("./routes/movieRoutes");
 const ratingReviewRoutes = require("./routes/ratingReviewRoutes");
 const personRoutes = require("./routes/personRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
+const searchRoutes = require('./routes/searchRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./config/swagger');
 dotenv.config();
@@ -29,6 +31,9 @@ app.use('/api/movies', movieRoutes);
 app.use('/api/rating-reviews', ratingReviewRoutes);
 app.use('/api/persons', personRoutes);
 app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/notifications', notificationRoutes);
+
 
 // Error Handling Middleware
 app.use(errorHandler);

@@ -189,3 +189,122 @@ module.exports = router;
  *           format: date-time
  *           description: Date and time when the rating/review was last updated
  */
+/**
+ * @swagger
+ * /api/rating-reviews/{reviewId}/like:
+ *   post:
+ *     summary: Add a like to a review
+ *     tags: [RatingReviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: reviewId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the review to like
+ *     responses:
+ *       200:
+ *         description: Like successfully added to review
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Like added to review
+ *                 review:
+ *                   $ref: '#/components/schemas/RatingReview'
+ *       404:
+ *         description: Review not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/rating-reviews/{reviewId}/comment:
+ *   post:
+ *     summary: Add a comment to a review
+ *     tags: [RatingReviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: reviewId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the review to comment on
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               comment:
+ *                 type: string
+ *                 description: The comment text
+ *     responses:
+ *       200:
+ *         description: Comment successfully added to review
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Comment added to review
+ *                 review:
+ *                   $ref: '#/components/schemas/RatingReview'
+ *       404:
+ *         description: Review not found
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/rating-reviews/{reviewId}/comments:
+ *   get:
+ *     summary: Get all comments for a review
+ *     tags: [RatingReviews]
+ *     parameters:
+ *       - in: path
+ *         name: reviewId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the review to fetch comments for
+ *     responses:
+ *       200:
+ *         description: List of comments for the review
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 comments:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       userId:
+ *                         type: string
+ *                         description: ID of the user who commented
+ *                       comment:
+ *                         type: string
+ *                         description: Comment text
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Comment creation date
+ *       404:
+ *         description: Review not found
+ *       500:
+ *         description: Server error
+ */

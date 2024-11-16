@@ -40,6 +40,15 @@ const MovieSchema = new mongoose.Schema({
   soundtrack: [String],
   ageRating: String, // e.g., "PG-13"
   parentalGuidance: String, // Parental guidance details
+  countryOfOrigin: {
+    type: String,
+    trim: true,
+  },
+  language: {
+    type: String,
+    trim: true,
+  },
+
 }, {
   timestamps: true,
 });
