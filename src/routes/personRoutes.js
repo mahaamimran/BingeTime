@@ -14,12 +14,11 @@ router.delete('/:id', protect, admin, personController.deletePerson);
 
 module.exports = router;
 
-
 /**
  * @swagger
  * tags:
  *   name: Persons
- *   description: API for managing persons (Directors, Actors, Crew)
+ *   description: API for managing persons such as directors, actors, and crew members
  */
 
 /**
@@ -42,27 +41,21 @@ module.exports = router;
  *             properties:
  *               name:
  *                 type: string
- *                 description: Name of the person
  *               role:
  *                 type: string
- *                 enum: [Director, Actor, Crew]
- *                 description: Role of the person
  *               biography:
  *                 type: string
- *                 description: Biography of the person
  *               awards:
  *                 type: array
  *                 items:
  *                   type: string
- *                 description: List of awards the person has won
  *               photos:
  *                 type: array
  *                 items:
  *                   type: string
- *                 description: URLs of photos of the person
  *     responses:
  *       201:
- *         description: Person created successfully
+ *         description: Person added successfully
  *       500:
  *         description: Server error
  *   get:
@@ -72,7 +65,7 @@ module.exports = router;
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of all persons
+ *         description: List of persons retrieved successfully
  *       500:
  *         description: Server error
  */
@@ -88,13 +81,13 @@ module.exports = router;
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
  *         description: ID of the person
  *     responses:
  *       200:
- *         description: Person details
+ *         description: Person details retrieved successfully
  *       404:
  *         description: Person not found
  *       500:
@@ -107,9 +100,9 @@ module.exports = router;
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
  *         description: ID of the person
  *     requestBody:
  *       required: true
@@ -120,24 +113,18 @@ module.exports = router;
  *             properties:
  *               name:
  *                 type: string
- *                 description: Name of the person
  *               role:
  *                 type: string
- *                 enum: [Director, Actor, Crew]
- *                 description: Role of the person
  *               biography:
  *                 type: string
- *                 description: Biography of the person
  *               awards:
  *                 type: array
  *                 items:
  *                   type: string
- *                 description: List of awards
  *               photos:
  *                 type: array
  *                 items:
  *                   type: string
- *                 description: URLs of photos
  *     responses:
  *       200:
  *         description: Person updated successfully
@@ -153,9 +140,9 @@ module.exports = router;
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
  *         description: ID of the person
  *     responses:
  *       200:
@@ -165,4 +152,3 @@ module.exports = router;
  *       500:
  *         description: Server error
  */
-

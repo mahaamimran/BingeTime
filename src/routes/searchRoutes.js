@@ -1,3 +1,4 @@
+// src/routes/searchRoutes.js
 const express = require('express');
 const router = express.Router();
 const searchController = require('../controllers/searchController.js');
@@ -8,86 +9,119 @@ router.get('/top-movies-of-month', searchController.getTopMoviesOfMonth);
 router.get('/top-movies-by-genre', searchController.getTopMoviesByGenre);
 
 module.exports = router;
+
 /**
  * @swagger
- * /api/search/:
+ * tags:
+ *   name: Search
+ *   description: Search and filter movies
+ */
+
+/**
+ * @swagger
+ * /api/search:
  *   get:
- *     summary: Search and filter movies
+ *     summary: Search and filter movies based on various criteria
  *     tags: [Search]
  *     parameters:
  *       - in: query
  *         name: title
  *         schema:
  *           type: string
- *         description: Title of the movie (partial match)
+ *         description: Partial match for movie title
  *       - in: query
  *         name: genre
  *         schema:
  *           type: string
- *         description: Genre(s) (comma-separated)
+ *         description: Filter movies by genres (comma-separated)
  *       - in: query
  *         name: director
  *         schema:
  *           type: string
- *         description: Director's ID
+ *         description: Filter movies by director's ID
  *       - in: query
  *         name: actor
  *         schema:
  *           type: string
- *         description: Actor(s) IDs (comma-separated)
+ *         description: Filter movies by actors' IDs (comma-separated)
  *       - in: query
  *         name: minRating
  *         schema:
  *           type: number
- *           minimum: 1
- *           maximum: 5
- *         description: Minimum average rating
+ *         description: Minimum rating for filtering
  *       - in: query
  *         name: maxRating
  *         schema:
  *           type: number
- *           minimum: 1
- *           maximum: 5
- *         description: Maximum average rating
+ *         description: Maximum rating for filtering
  *       - in: query
  *         name: minYear
  *         schema:
- *           type: integer
- *         description: Minimum release year
+ *           type: number
+ *         description: Minimum release year for filtering
  *       - in: query
  *         name: maxYear
  *         schema:
- *           type: integer
- *         description: Maximum release year
+ *           type: number
+ *         description: Maximum release year for filtering
  *       - in: query
  *         name: decade
  *         schema:
- *           type: integer
- *         description: Release decade (e.g., 1990 for the 1990s)
+ *           type: number
+ *         description: Filter movies released in a specific decade (e.g., 1990 for the 1990s)
  *       - in: query
  *         name: countryOfOrigin
  *         schema:
  *           type: string
- *         description: Country of origin
+ *         description: Filter movies by country of origin
  *       - in: query
  *         name: language
  *         schema:
  *           type: string
- *         description: Language
+ *         description: Filter movies by language
  *       - in: query
  *         name: keyword
  *         schema:
  *           type: string
- *         description: Keyword in synopsis or trivia
+ *         description: Search for a keyword in movie synopsis or trivia
  *     responses:
  *       200:
- *         description: List of movies matching search criteria
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Movie'
+ *         description: Movies retrieved successfully
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/search/top-movies-of-month:
+ *   get:
+ *     summary: Retrieve the top-rated movies of the current month
+ *     tags: [Search]
+ *     responses:
+ *       200:
+ *         description: Top-rated movies of the month retrieved successfully
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/search/top-movies-by-genre:
+ *   get:
+ *     summary: Retrieve the top-rated movies for a specific genre
+ *     tags: [Search]
+ *     parameters:
+ *       - in: query
+ *         name: genre
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Genre to filter movies by
+ *     responses:
+ *       200:
+ *         description: Top-rated movies by genre retrieved successfully
+ *       400:
+ *         description: Genre is required
  *       500:
  *         description: Server error
  */

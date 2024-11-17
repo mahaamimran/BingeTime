@@ -21,20 +21,38 @@ router.get('/:reviewId/comments', ratingReviewController.getCommentsForReview);
 
 module.exports = router;
 
-
 /**
  * @swagger
  * tags:
- *   - name: RatingReviews
- *     description: "Operations related to movie ratings and reviews"
+ *   name: Rating & Reviews
+ *   description: API for managing ratings and reviews for movies
  */
 
 /**
  * @swagger
- * /api/rating-reviews/:
+ * /api/rating-reviews/movie/{movieId}:
+ *   get:
+ *     summary: Get all ratings and reviews for a specific movie
+ *     tags: [Rating & Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: movieId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of ratings and reviews retrieved
+ *       500:
+ *         description: Server error
+ */
+
+/**
+ * @swagger
+ * /api/rating-reviews:
  *   post:
- *     summary: Add or update a rating and review
- *     tags: [RatingReviews]
+ *     summary: Add or update a rating and review for a movie
+ *     tags: [Rating & Reviews]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -46,28 +64,13 @@ module.exports = router;
  *             properties:
  *               movieId:
  *                 type: string
- *                 description: The ID of the movie being rated/reviewed
  *               rating:
  *                 type: number
- *                 minimum: 1
- *                 maximum: 5
- *                 description: The rating given by the user (1-5)
  *               review:
  *                 type: string
- *                 description: The review text provided by the user
  *     responses:
  *       200:
- *         description: Rating and review successfully added or updated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Rating and review saved
- *                 ratingReview:
- *                   $ref: '#/components/schemas/RatingReview'
+ *         description: Rating and review added/updated
  *       500:
  *         description: Server error
  */
@@ -76,56 +79,21 @@ module.exports = router;
  * @swagger
  * /api/rating-reviews/{movieId}:
  *   delete:
- *     summary: Delete a user's rating and review for a specific movie
- *     tags: [RatingReviews]
+ *     summary: Delete a rating and review for a specific movie
+ *     tags: [Rating & Reviews]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: movieId
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: The ID of the movie
  *     responses:
  *       200:
  *         description: Rating and review deleted
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Rating and review deleted
  *       404:
  *         description: Rating and review not found
- *       500:
- *         description: Server error
- */
-
-/**
- * @swagger
- * /api/rating-reviews/movie/{movieId}:
- *   get:
- *     summary: Get all ratings and reviews for a specific movie
- *     tags: [RatingReviews]
- *     parameters:
- *       - in: path
- *         name: movieId
- *         schema:
- *           type: string
- *         required: true
- *         description: The ID of the movie
- *     responses:
- *       200:
- *         description: List of ratings and reviews for the movie
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/RatingReview'
  *       500:
  *         description: Server error
  */
@@ -134,24 +102,19 @@ module.exports = router;
  * @swagger
  * /api/rating-reviews/user/{movieId}:
  *   get:
- *     summary: Get the authenticated user's rating and review for a specific movie
- *     tags: [RatingReviews]
+ *     summary: Get a user's rating and review for a specific movie
+ *     tags: [Rating & Reviews]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: movieId
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: The ID of the movie
  *     responses:
  *       200:
- *         description: The user's rating and review for the specified movie
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/RatingReview'
+ *         description: Rating and review retrieved
  *       404:
  *         description: Rating and review not found
  *       500:
@@ -160,65 +123,71 @@ module.exports = router;
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     RatingReview:
- *       type: object
- *       properties:
- *         _id:
+ * /api/rating-reviews/{movieId}/top-rated:
+ *   get:
+ *     summary: Get top-rated reviews for a specific movie
+ *     tags: [Rating & Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: movieId
+ *         required: true
+ *         schema:
  *           type: string
- *           description: The ID of the rating/review
- *         userId:
- *           type: string
- *           description: The ID of the user who posted the rating/review
- *         movieId:
- *           type: string
- *           description: The ID of the movie being rated/reviewed
- *         rating:
- *           type: number
- *           description: The rating given by the user (1-5)
- *         review:
- *           type: string
- *           description: The review text provided by the user
- *         createdAt:
- *           type: string
- *           format: date-time
- *           description: Date and time when the rating/review was created
- *         updatedAt:
- *           type: string
- *           format: date-time
- *           description: Date and time when the rating/review was last updated
+ *     responses:
+ *       200:
+ *         description: Top-rated reviews retrieved
+ *       404:
+ *         description: No reviews found
+ *       500:
+ *         description: Server error
  */
+
+/**
+ * @swagger
+ * /api/rating-reviews/{movieId}/most-discussed:
+ *   get:
+ *     summary: Get most discussed reviews for a specific movie
+ *     tags: [Rating & Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: movieId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Most discussed reviews retrieved
+ *       404:
+ *         description: No reviews found
+ *       500:
+ *         description: Server error
+ */
+
 /**
  * @swagger
  * /api/rating-reviews/{reviewId}/like:
  *   post:
  *     summary: Add a like to a review
- *     tags: [RatingReviews]
+ *     tags: [Rating & Reviews]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: reviewId
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: The ID of the review to like
  *     responses:
  *       200:
- *         description: Like successfully added to review
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Like added to review
- *                 review:
- *                   $ref: '#/components/schemas/RatingReview'
+ *         description: Like added to review
  *       404:
  *         description: Review not found
+ *       400:
+ *         description: You have already liked this review
  *       500:
  *         description: Server error
  */
@@ -228,16 +197,15 @@ module.exports = router;
  * /api/rating-reviews/{reviewId}/comment:
  *   post:
  *     summary: Add a comment to a review
- *     tags: [RatingReviews]
+ *     tags: [Rating & Reviews]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: reviewId
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: The ID of the review to comment on
  *     requestBody:
  *       required: true
  *       content:
@@ -247,20 +215,9 @@ module.exports = router;
  *             properties:
  *               comment:
  *                 type: string
- *                 description: The comment text
  *     responses:
  *       200:
- *         description: Comment successfully added to review
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Comment added to review
- *                 review:
- *                   $ref: '#/components/schemas/RatingReview'
+ *         description: Comment added to review
  *       404:
  *         description: Review not found
  *       500:
@@ -272,37 +229,16 @@ module.exports = router;
  * /api/rating-reviews/{reviewId}/comments:
  *   get:
  *     summary: Get all comments for a review
- *     tags: [RatingReviews]
+ *     tags: [Rating & Reviews]
  *     parameters:
  *       - in: path
  *         name: reviewId
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: The ID of the review to fetch comments for
  *     responses:
  *       200:
- *         description: List of comments for the review
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 comments:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       userId:
- *                         type: string
- *                         description: ID of the user who commented
- *                       comment:
- *                         type: string
- *                         description: Comment text
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                         description: Comment creation date
+ *         description: Comments retrieved
  *       404:
  *         description: Review not found
  *       500:

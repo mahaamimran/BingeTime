@@ -92,6 +92,10 @@ const UserSchema = new mongoose.Schema(
                 },
             },
         ],
+        engagementScore: {
+            type: Number,
+            default: 0, // Calculated based on the interactions
+        },
     },
     {
         timestamps: true,

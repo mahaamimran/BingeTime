@@ -1,6 +1,7 @@
-// src/controllers/movieController.js
 const Movie = require('../models/Movie');
+const RatingReview = require('../models/RatingReview'); 
 const Person = require('../models/Person');
+const User = require('../models/User');
 
 // Add a new movie
 const addMovie = async (req, res) => {
@@ -48,9 +49,9 @@ const getAllMovies = async (req, res) => {
 const getMovieById = async (req, res) => {
   try {
     const movie = await Movie.findById(req.params.id)
-      .populate('director')
-      .populate('cast')
-      .populate('crew');
+      .populate('director', 'name')
+      .populate('cast', 'name')
+      .populate('crew', 'name');
 
     if (!movie) return res.status(404).json({ message: 'Movie not found' });
     res.status(200).json(movie);
@@ -81,10 +82,163 @@ const deleteMovie = async (req, res) => {
   }
 };
 
+const getAllReviews = async (req, res) => {
+    try {
+      // Use the correct model name
+      const reviews = await RatingReview.find()
+        .populate('movieId', 'title') // Ensure `title` exists in the Movie schema
+        .populate('userId', 'name'); // Ensure `name` exists in the User schema
+  
+      if (!reviews.length) {
+        return res.status(404).json({ message: 'No reviews found.' });
+      }
+  
+      res.status(200).json(reviews);
+    } catch (error) {
+      console.error('Error fetching reviews:', error.message, error.stack);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
+
+// Delete a review
+const deleteReview = async (req, res) => {
+    try {
+      const review = await RatingReview.findByIdAndDelete(req.params.id);
+      if (!review) return res.status(404).json({ message: 'Review not found' });
+      res.status(200).json({ message: 'Review deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting review:', error.message, error.stack);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
+
+// Get popular movies
+const getPopularMovies = async (req, res) => {
+    try {
+      const movies = await Movie.find({ averageRating: { $gt: 0 } })
+        .sort({ averageRating: -1 })
+        .limit(10)
+        .select('title averageRating coverPhoto');
+      if (!movies.length) return res.status(404).json({ message: 'No popular movies found' });
+  
+      res.status(200).json(movies);
+    } catch (error) {
+      console.error('Error fetching popular movies:', error.message, error.stack);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
+
+// Get most active users
+const getMostActiveUsers = async (req, res) => {
+    try {
+      const users = await User.aggregate([
+        {
+          $project: {
+            name: 1,
+            activityScore: {
+              $add: [
+                { $size: { $ifNull: ['$likes', []] } },
+                { $size: { $ifNull: ['$comments', []] } },
+                { $size: { $ifNull: ['$reviews', []] } },
+              ],
+            },
+          },
+        },
+        { $sort: { activityScore: -1 } },
+        { $limit: 10 },
+      ]);
+  
+      if (!users.length) return res.status(404).json({ message: 'No active users found' });
+  
+      res.status(200).json(users);
+    } catch (error) {
+      console.error('Error fetching most active users:', error.message, error.stack);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
+
+// Get trending genres
+const getTrendingGenres = async (req, res) => {
+    try {
+      const genres = await Movie.aggregate([
+        { $unwind: '$genre' },
+        { $group: { _id: '$genre', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 5 },
+      ]);
+  
+      if (!genres.length) return res.status(404).json({ message: 'No trending genres found' });
+  
+      res.status(200).json(genres);
+    } catch (error) {
+      console.error('Error fetching trending genres:', error.message, error.stack);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
+
+// Get most searched actors
+const getMostSearchedActors = async (req, res) => {
+    try {
+      const actors = await Person.find({ role: 'Actor' })
+        .sort({ searchCount: -1 })
+        .limit(10)
+        .select('name searchCount');
+  
+      if (!actors.length) return res.status(404).json({ message: 'No searched actors found' });
+  
+      res.status(200).json(actors);
+    } catch (error) {
+      console.error('Error fetching most searched actors:', error.message, error.stack);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
+
+// Get user engagement
+const getUserEngagement = async (req, res) => {
+    try {
+      const engagement = await User.aggregate([
+        {
+          $project: {
+            name: 1,
+            engagementScore: {
+              $add: [
+                { $size: { $ifNull: ['$likes', []] } },
+                { $size: { $ifNull: ['$comments', []] } },
+                { $size: { $ifNull: ['$reviews', []] } },
+              ],
+            },
+          },
+        },
+        { $sort: { engagementScore: -1 } },
+      ]);
+  
+      if (!engagement.length) return res.status(404).json({ message: 'No user engagement data found' });
+  
+      res.status(200).json(engagement);
+    } catch (error) {
+      console.error('Error fetching user engagement data:', error.message, error.stack);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
+
 module.exports = {
   addMovie,
   getAllMovies,
   getMovieById,
   updateMovie,
   deleteMovie,
+  getAllReviews,
+  deleteReview,
+  getPopularMovies,
+  getMostActiveUsers,
+  getTrendingGenres,
+  getMostSearchedActors,
+  getUserEngagement,
 };

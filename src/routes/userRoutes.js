@@ -37,6 +37,7 @@ router.post('/wishlist', protect, userController.addToWishlist);
 router.delete('/wishlist/:movieId', protect, userController.removeFromWishlist);
 router.get('/wishlist', protect, userController.getWishlist);
 
+module.exports = router;
 
 /**
  * @swagger
@@ -488,4 +489,3 @@ router.get('/wishlist', protect, userController.getWishlist);
  *         description: Server error
  */
 
-module.exports = router;
