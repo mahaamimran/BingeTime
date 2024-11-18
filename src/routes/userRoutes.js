@@ -104,6 +104,45 @@ module.exports = router;
  *         description: Invalid credentials
  */
 
+
+/**
+ * @swagger
+ * /api/users/all:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []  # Requires JWT authentication
+ *     responses:
+ *       200:
+ *         description: List of all users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: The unique ID of the user
+ *                   name:
+ *                     type: string
+ *                     description: Name of the user
+ *                   email:
+ *                     type: string
+ *                     description: Email of the user
+ *                   role:
+ *                     type: string
+ *                     description: Role of the user (e.g., user, admin)
+ *       401:
+ *         description: Unauthorized - User must be logged in
+ *       403:
+ *         description: Forbidden - User does not have permission to access this route
+ *       500:
+ *         description: Internal server error
+ */
+
 /**
  * @swagger
  * /api/users/profile:
