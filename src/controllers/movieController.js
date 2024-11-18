@@ -32,18 +32,40 @@ const addMovie = async (req, res) => {
   }
 };
 
-// Get all movies
+// det all movies with pagination
 const getAllMovies = async (req, res) => {
-  try {
-    const movies = await Movie.find()
-      .populate('director', 'name')
-      .populate('cast', 'name')
-      .populate('crew', 'name');
-    res.status(200).json(movies);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+    try {
+      const { page = 1, limit = 10 } = req.query; // Default to page 1 and 10 items per page
+  
+      // Parse the page and limit as integers
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+  
+      // Calculate the number of movies to skip
+      const skip = (pageNumber - 1) * limitNumber;
+  
+      // Fetch movies with pagination
+      const movies = await Movie.find()
+        .populate('director', 'name')
+        .populate('cast', 'name')
+        .populate('crew', 'name')
+        .skip(skip)
+        .limit(limitNumber);
+  
+      // Count total movies
+      const totalMovies = await Movie.countDocuments();
+  
+      res.status(200).json({
+        movies,
+        totalMovies,
+        totalPages: Math.ceil(totalMovies / limitNumber),
+        currentPage: pageNumber,
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  
 
 // Get a movie by ID
 const getMovieById = async (req, res) => {

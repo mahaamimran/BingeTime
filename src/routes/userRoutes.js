@@ -9,6 +9,7 @@ router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 
 // User Management routes
+router.get('/all', protect, userController.getAllUsers);
 router.get('/profile', protect, userController.getUserProfile);
 router.put('/profile', protect, userController.updateUserProfile);
 router.delete('/:id',protect, userController.deleteUser);
